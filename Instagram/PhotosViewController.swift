@@ -8,10 +8,21 @@
 
 import UIKit
 import AFNetworking
+import MBProgressHUD
 
-class PhotosViewController: UIViewController, UITableViewDataSource, UITableViewDelegate  {
+
+class PhotosViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate  {
     var datas: [NSDictionary]?
+    var isMoreDataLoading = false
+    var loadingMoreView : InfiniteScrollActivityView?
     @IBOutlet weak var tableView: UITableView!
+    
+    lazy var refreshControl: UIRefreshControl = {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: "handleRefresh:", forControlEvents: UIControlEvents.ValueChanged)
+        return refreshControl
+    }()
+
     
     override func viewDidLoad() {
         //print("WWWWWW")
@@ -19,6 +30,16 @@ class PhotosViewController: UIViewController, UITableViewDataSource, UITableView
         tableView.rowHeight = 250;
         tableView.dataSource = self
         tableView.delegate = self
+        
+        let frame = CGRectMake(0, tableView.contentSize.height, tableView.bounds.size.width, InfiniteScrollActivityView.defaultHeight)
+        
+        loadingMoreView = InfiniteScrollActivityView(frame: frame)
+        loadingMoreView!.hidden = true
+        tableView.addSubview(loadingMoreView!)
+        
+        var insets = tableView.contentInset;
+        insets.bottom += InfiniteScrollActivityView.defaultHeight;
+        tableView.contentInset = insets
         
         // Do any additional setup after loading the view, typically from a nib.
         let clientId = "e05c462ebd86446ea48a5af73769b602"
@@ -35,15 +56,22 @@ class PhotosViewController: UIViewController, UITableViewDataSource, UITableView
                 if let data = dataOrNil {
                     if let responseDictionary = try! NSJSONSerialization.JSONObjectWithData(
                         data, options:[]) as? NSDictionary {
-                            //NSLog("response: \(responseDictionary)")
                             self.datas = responseDictionary["data"] as? [NSDictionary]
                             self.tableView.reloadData()
                     }
                 }
         });
         task.resume()
+        self.tableView.addSubview(self.refreshControl)
         
     }
+    
+    func handleRefresh(refreshControl: UIRefreshControl) {
+        
+        self.tableView.reloadData()
+        refreshControl.endRefreshing()
+    }
+    
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -56,12 +84,9 @@ class PhotosViewController: UIViewController, UITableViewDataSource, UITableView
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell{
         let cell = tableView.dequeueReusableCellWithIdentifier("TableViewCell", forIndexPath: indexPath) as! TableViewCell
-//        self.tableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "TableViewCell")
-        //print(indexPath.row)
         let data = datas![indexPath.section]
         let full_name = data["user"]!["username"] as! String
         if let posterPath = data["images"]!["low_resolution"]!!["url"] as? String {
-//            let posterBaseUrl = "http://image.tmdb.org/t/p/w500"
             let posterUrl = NSURL(string: posterPath)
             cell.contentImage.setImageWithURL(posterUrl!)
         }
@@ -71,13 +96,6 @@ class PhotosViewController: UIViewController, UITableViewDataSource, UITableView
             cell.contentImage.image = nil
         }
 
-
-//        cell.overviewLabel.text = overview
-        
-        //        cell.posterView.setImageWithURL(imageUrl!)
-        
-        
-        //print("row \(indexPath.row)")
         return cell
         
     }
@@ -102,17 +120,13 @@ class PhotosViewController: UIViewController, UITableViewDataSource, UITableView
         profileView.layer.borderWidth = 1;
         
         // Use the section number to get the right URL
-        //print(datas)
-        
         let data = datas![section]
         if let profileImagePath = data["user"]!["profile_picture"] as? String{
             let profileImageUrl = NSURL(string: profileImagePath)
-            print(profileImagePath)
             profileView.setImageWithURL(profileImageUrl!)
         }else{
             profileView.image = nil
         }
-        
         headerView.addSubview(profileView)
         
         // Add a UILabel for the username here
@@ -128,6 +142,79 @@ class PhotosViewController: UIViewController, UITableViewDataSource, UITableView
     func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat{
         return  50
     }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        // Get the new view controller using segue.destinationViewController.
+        // Pass the selected object to the new view controller.
+        let cell = sender as! UITableViewCell
+        let indexPath = tableView.indexPathForCell(cell)
+        let data = datas![indexPath!.section]
+        let detailViewController = segue.destinationViewController as! DetailViewController
+        detailViewController.data = data
+    }
+    
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        tableView.deselectRowAtIndexPath(indexPath, animated:true)
+    }
+    
+    func scrollViewDidScroll(scrollView: UIScrollView) {
+        // Handle scroll behavior here
+        if (!isMoreDataLoading) {
+            // Calculate the position of one screen length before the bottom of the results
+            let scrollViewContentHeight = tableView.contentSize.height
+            let scrollOffsetThreshold = scrollViewContentHeight - tableView.bounds.size.height
+            // When the user has scrolled past the threshold, start requesting
+            if(scrollView.contentOffset.y > scrollOffsetThreshold && tableView.dragging) {
+                isMoreDataLoading = true
+                
+                let frame = CGRectMake(0, tableView.contentSize.height, tableView.bounds.size.width, InfiniteScrollActivityView.defaultHeight)
+                loadingMoreView?.frame = frame
+                loadingMoreView!.startAnimating()
+
+                loadMoreData()
+            }
+            
+        }
+        
+        
+    }
+    
+    func loadMoreData() {
+        
+        // ... Create the NSURLRequest (myRequest) ...
+        let clientId = "e05c462ebd86446ea48a5af73769b602"
+        let url = NSURL(string:"https://api.instagram.com/v1/media/popular?client_id=\(clientId)")
+        let myRequest = NSURLRequest(URL: url!)
+        
+        // Configure session so that completion handler is executed on main UI thread
+        let session = NSURLSession(
+            configuration: NSURLSessionConfiguration.defaultSessionConfiguration(),
+            delegate:nil,
+            delegateQueue:NSOperationQueue.mainQueue()
+        )
+        
+        let task : NSURLSessionDataTask = session.dataTaskWithRequest(myRequest,
+            completionHandler: { (data, response, error) in
+                // Update flag
+                self.isMoreDataLoading = false
+                
+                self.loadingMoreView!.stopAnimating()
+
+                // ... Use the new data to update the data source ...
+                if let data = data{
+                    if let responseDictionary = try! NSJSONSerialization.JSONObjectWithData(
+                        data, options:[]) as? NSDictionary {
+                            //NSLog("response: \(responseDictionary)")
+                            self.datas = responseDictionary["data"] as? [NSDictionary]
+                            self.tableView.reloadData()
+                    }
+                }
+                // Reload the tableView now that there is new data
+                self.tableView.reloadData()
+        });
+        task.resume()
+    }
+    
 
 
 }
