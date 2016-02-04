@@ -33,7 +33,7 @@
                                         </tableViewCellContentView>
                                         <connections>
                                             <outlet property="contentImage" destination="Wu5-cW-cGG" id="d8N-he-YOP"/>
-                                            <segue destination="ygk-K9-Wjk" kind="push" id="C0R-aB-gdu"/>
+                                            <segue destination="ygk-K9-Wjk" kind="push" id="9nY-rb-O0J"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -50,7 +50,7 @@
             </objects>
             <point key="canvasLocation" x="520" y="-28"/>
         </scene>
-        <!--Detail View Controller-->
+        <!--Detail Image-->
         <scene sceneID="TQt-pY-hzh">
             <objects>
                 <viewController id="ygk-K9-Wjk" customClass="DetailViewController" customModule="Instagram" customModuleProvider="target" sceneMemberID="viewController">
@@ -58,21 +58,47 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="aLm-fZ-r8Z">
-                                <rect key="frame" x="0.0" y="66" width="320" height="502"/>
+                            <imageView contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="aLm-fZ-r8Z">
+                                <rect key="frame" x="0.0" y="126" width="320" height="395"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <gestureRecognizers/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="zjB-Uh-Sr6" appends="YES" id="TEC-0Y-6Gd"/>
+                                </connections>
                             </imageView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <gestureRecognizers/>
                     </view>
-                    <navigationItem key="navigationItem" id="zZQ-iZ-ZUh"/>
+                    <navigationItem key="navigationItem" title="Detail Image" id="zZQ-iZ-ZUh"/>
                     <connections>
                         <outlet property="imageView" destination="aLm-fZ-r8Z" id="utn-It-g9f"/>
+                        <segue destination="oVU-X3-Cqs" kind="modal" identifier="fullScreenSegue" modalTransitionStyle="crossDissolve" id="Pet-ny-L5V"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="YQ3-oB-qKp" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer id="zjB-Uh-Sr6">
+                    <connections>
+                        <action selector="onTap:" destination="ygk-K9-Wjk" id="bly-ZI-g5A"/>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="878" y="-46"/>
+            <point key="canvasLocation" x="1346" y="-49"/>
+        </scene>
+        <!--Full Screen Photo View Controller-->
+        <scene sceneID="cee-AP-agA">
+            <objects>
+                <viewController id="oVU-X3-Cqs" customClass="FullScreenPhotoViewController" customModule="Instagram" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="b1Z-iJ-ssf">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="Ojh-bP-xGN"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="CWz-qM-msI" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1820" y="-28"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="F8g-1k-MD8">
@@ -92,5 +118,27 @@
             </objects>
             <point key="canvasLocation" x="143" y="-28"/>
         </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="rnO-r8-2SO">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="abe-Ok-gWk" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationItem key="navigationItem" id="y3Z-Dk-Ne5"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="tvH-Wf-yfV">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="ygk-K9-Wjk" kind="relationship" relationship="rootViewController" id="5hz-rI-eWk"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="csw-Lz-Qly" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="983" y="23"/>
+        </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="9nY-rb-O0J"/>
+    </inferredMetricsTieBreakers>
 </document>

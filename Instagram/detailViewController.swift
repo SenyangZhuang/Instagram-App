@@ -14,7 +14,6 @@ class DetailViewController: UIViewController {
     var data: NSDictionary!
     
     override func viewDidLoad() {
-        
         super.viewDidLoad()
         if let posterPath = data["images"]!["low_resolution"]!!["url"] as? String {
             //            let posterBaseUrl = "http://image.tmdb.org/t/p/w500"
@@ -30,6 +29,10 @@ class DetailViewController: UIViewController {
         
         // Do any additional setup after loading the view.
     }
+    @IBAction func onTap(sender: AnyObject) {
+        print("QQQQ")
+        performSegueWithIdentifier("fullScreenSegue", sender: self)
+    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -37,14 +40,20 @@ class DetailViewController: UIViewController {
     }
     
 
-    /*
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
+      let fullScreenViewController = segue.destinationViewController as! FullScreenPhotoViewController
+        
+        
+        
+        
     }
-    */
+    
 
+  
 }
