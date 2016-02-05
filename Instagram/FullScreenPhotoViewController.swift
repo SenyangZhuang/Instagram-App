@@ -39,6 +39,15 @@ class FullScreenPhotoViewController: UIViewController,UIScrollViewDelegate {
         dismissViewControllerAnimated(true, completion: nil)
     }
     
+    @IBAction func tapClicked(sender: AnyObject) {
+        viewForZoomingInScrollView(scrollView)
+    }
+ 
+    
+    func viewForZoomingInScrollView(scrollView: UIScrollView!) -> UIView! {
+        return imageView
+    }
+    
     /*
     // MARK: - Navigation
 

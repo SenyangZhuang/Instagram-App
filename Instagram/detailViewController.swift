@@ -29,7 +29,6 @@ class DetailViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
     @IBAction func onTap(sender: AnyObject) {
-        print("QQQQ")
         performSegueWithIdentifier("fullScreenSegue", sender: self)
     }
 
