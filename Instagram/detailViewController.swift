@@ -18,7 +18,6 @@ class DetailViewController: UIViewController {
         if let posterPath = data["images"]!["low_resolution"]!!["url"] as? String {
             //            let posterBaseUrl = "http://image.tmdb.org/t/p/w500"
             let posterUrl = NSURL(string: posterPath)
-            print(posterPath)
             imageView.setImageWithURL(posterUrl!)
         }
         else {
@@ -48,8 +47,7 @@ class DetailViewController: UIViewController {
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
       let fullScreenViewController = segue.destinationViewController as! FullScreenPhotoViewController
-        
-        
+            fullScreenViewController.data = data
         
         
     }

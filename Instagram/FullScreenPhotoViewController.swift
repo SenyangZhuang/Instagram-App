@@ -8,12 +8,25 @@
 
 import UIKit
 
-class FullScreenPhotoViewController: UIViewController {
-
+class FullScreenPhotoViewController: UIViewController,UIScrollViewDelegate {
+    
+    @IBOutlet weak var imageView: UIImageView!
+    @IBOutlet weak var scrollView: UIScrollView!
+    var data: NSDictionary!
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        scrollView.delegate = self
         // Do any additional setup after loading the view.
+        if let posterPath = data["images"]!["low_resolution"]!!["url"] as? String {
+            //            let posterBaseUrl = "http://image.tmdb.org/t/p/w500"
+            let posterUrl = NSURL(string: posterPath)
+            imageView.setImageWithURL(posterUrl!)
+        }
+        else {
+            // No poster image. Can either set to nil (no image) or a default movie poster image
+            // that you include as an asset
+            imageView.image = nil
+        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -22,6 +35,10 @@ class FullScreenPhotoViewController: UIViewController {
     }
     
 
+    @IBAction func backButtonClicked(sender: AnyObject) {
+        dismissViewControllerAnimated(true, completion: nil)
+    }
+    
     /*
     // MARK: - Navigation
 
